@@ -1,3 +1,6 @@
+from metrics_engine import inc
+from metrics_report_handler import metrics_status
+import metrics_engine
 #!/usr/bin/env python3
 from self_mod_engine import is_self_modification, create_branch, validate_syntax, run_tests, rollback
 from strategy_engine import detect_mode, log_strategy_decision, update_strategy_focus
@@ -236,6 +239,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
     if not success:
         shutil.rmtree(ws,ignore_errors=True)
         log_execution(cmd,False,output)
+    inc("failures")
         await update.message.reply_text(f"Falha:\n{output}")
         await update.message.reply_text("Workspace destruído.")
         EXECUTING = False
@@ -258,12 +262,14 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
     commit_msg = f"auto(dev): {cmd}"
     subprocess.run(["git","commit","-m",commit_msg],cwd=REPO_DIR)
+    inc("commits")
 
     commit_hash = subprocess.check_output(["git","rev-parse","--short","HEAD"],cwd=REPO_DIR).decode().strip()
 
     shutil.rmtree(ws,ignore_errors=True)
 
     log_execution(cmd,True,output)
+    inc("executions")
     update_patterns(cmd)
 
     # === STRATEGY INTEGRATION ===
@@ -300,6 +306,7 @@ def main():
     token = load_token()
     app = ApplicationBuilder().token(token).build()
     app.add_handler(CommandHandler("strategy",strategy_status))
+    app.add_handler(CommandHandler("metrics", metrics_status))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND,handle))
     print("DEV BOT ONLINE - CLEAN STABLE CORE")
     app.run_polling()
