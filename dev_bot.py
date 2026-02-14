@@ -21,15 +21,13 @@ from context_lock_engine import (
     deactivate,
     escalate_confidence,
     interpret_abort_response,
+    can_auto_execute,
+    requires_hard_confirmation,
 )
 
 ENV_FILE = Path("/srv/dev/.env")
 WORKSPACES_DIR = Path("/srv/dev/workspaces")
 AUTHORIZED_USER = 426824590
-
-EXECUTING = False
-PENDING_CMD = None
-
 
 def load_token():
     for line in ENV_FILE.read_text().splitlines():
@@ -37,57 +35,62 @@ def load_token():
             return line.split("=", 1)[1].strip()
     raise RuntimeError("TELEGRAM_TOKEN não encontrado")
 
-
 def create_workspace():
     WORKSPACES_DIR.mkdir(exist_ok=True)
     ws = WORKSPACES_DIR / f"ws_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     subprocess.run(["mkdir", str(ws)])
     return ws
 
-
 def execute(cmd, cwd):
     result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
     return result.returncode == 0, result.stdout + result.stderr
 
-
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    global PENDING_CMD
 
     if update.effective_user.id != AUTHORIZED_USER:
         return
 
     text = update.message.text.strip()
 
-    # ==========================
-    # CONTEXT LOCK CHECK
-    # ==========================
     state = load_state()
 
+    # ==========================
+    # CONTEXT LOCK
+    # ==========================
     if state["active"]:
 
         decision = cognitive_decision(text)
 
         if decision.get("state") == "EXECUTE":
 
-            interpretation = interpret_abort_response(text)
+            if not can_auto_execute():
+                interpretation = interpret_abort_response(text)
 
-            if interpretation == "CONTINUE_BRIEFING":
-                await update.message.reply_text("Perfeito. Vamos continuar o briefing.")
-                return
+                if interpretation == "CONTINUE_BRIEFING":
+                    await update.message.reply_text("Seguimos no briefing estratégico.")
+                    return
 
-            if interpretation == "CONVERT_TO_PLAN":
-                await update.message.reply_text("Incluindo isso como parte do plano estratégico.")
-                escalate_confidence()
-                return
+                if interpretation == "CONVERT_TO_PLAN":
+                    await update.message.reply_text("Integrando como parte do plano.")
+                    escalate_confidence()
+                    return
 
-            if interpretation == "ABORT_AND_EXECUTE":
-                deactivate()
-                await update.message.reply_text("Certo. Executando o comando.")
+                if interpretation == "ABORT_AND_EXECUTE":
+                    if requires_hard_confirmation():
+                        await update.message.reply_text(
+                            "Estamos em estágio avançado do briefing. Confirme explicitamente que deseja abortar."
+                        )
+                        return
+                    deactivate()
+                    await update.message.reply_text("Abortando briefing. Executando comando.")
+                else:
+                    await update.message.reply_text(
+                        "Você deseja interromper o briefing estratégico para executar um comando técnico?"
+                    )
+                    return
             else:
-                await update.message.reply_text(
-                    f"Você deseja interromper o briefing estratégico para executar um comando técnico?"
-                )
-                return
+                deactivate()
+                await update.message.reply_text("Confiança suficiente. Executando automaticamente.")
 
     # ==========================
     # COGNITIVE CORE
@@ -125,15 +128,13 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     shutil.rmtree(ws, ignore_errors=True)
     await update.message.reply_text("Execução concluída.")
 
-
 def main():
     token = load_token()
     app = ApplicationBuilder().token(token).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
 
-    print("DEV BOT ONLINE - HYBRID CONTEXT LOCK")
+    print("DEV BOT ONLINE - CONFIDENCE GATED CORE")
     app.run_polling()
-
 
 if __name__ == "__main__":
     main()

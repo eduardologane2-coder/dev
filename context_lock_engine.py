@@ -4,6 +4,9 @@ from llm_engine import ask_llm
 
 STATE_FILE = Path("/srv/dev/context_lock.json")
 
+EXECUTION_THRESHOLD = 3
+HARD_ABORT_THRESHOLD = 5
+
 def load_state():
     if not STATE_FILE.exists():
         return {"active": False, "topic": None, "confidence_level": 0}
@@ -29,25 +32,26 @@ def escalate_confidence():
 def deactivate():
     save_state({"active": False, "topic": None, "confidence_level": 0})
 
+def can_auto_execute():
+    state = load_state()
+    return state["confidence_level"] >= EXECUTION_THRESHOLD
+
+def requires_hard_confirmation():
+    state = load_state()
+    return state["confidence_level"] >= HARD_ABORT_THRESHOLD
+
 def interpret_abort_response(user_text: str):
-    """
-    Híbrido:
-    1️⃣ Heurística simples
-    2️⃣ Se ambíguo → LLM classifica
-    """
     lower = user_text.lower()
 
-    # Heurística rápida
-    if any(x in lower for x in ["sim", "execute", "executar", "pode executar"]):
+    if any(x in lower for x in ["sim", "executar", "pode executar"]):
         return "ABORT_AND_EXECUTE"
 
-    if any(x in lower for x in ["não", "continuar", "seguir briefing"]):
+    if any(x in lower for x in ["não", "continuar"]):
         return "CONTINUE_BRIEFING"
 
     if any(x in lower for x in ["converter", "parte do plano"]):
         return "CONVERT_TO_PLAN"
 
-    # 🔥 fallback LLM
     prompt = f"""
 Estamos em um briefing estratégico ativo.
 Usuário respondeu: "{user_text}"
@@ -57,7 +61,6 @@ Classifique apenas como:
 - CONTINUE_BRIEFING
 - CONVERT_TO_PLAN
 """
-
     try:
         resp = ask_llm(prompt)
         resp = resp.strip().upper()
