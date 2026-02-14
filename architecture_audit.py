@@ -1,9 +1,12 @@
-import subprocess
+from executor import run
+from pathlib import Path
 
-def run_integrity_checks():
-    result = subprocess.run(
-        ["python3", "-m", "py_compile", "dev_bot.py"],
-        capture_output=True,
-        text=True
-    )
-    return result.returncode == 0, result.stderr
+DEV_PATH = Path("/srv/dev")
+
+def audit_git_state():
+    success, output = run("git status", cwd=DEV_PATH)
+
+    if not success:
+        return False, output
+
+    return True, output

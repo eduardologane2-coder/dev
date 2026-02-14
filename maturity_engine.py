@@ -1,74 +1,73 @@
 import json
 from pathlib import Path
 
-LOG_FILE = Path("/srv/dev/cognitive_log.json")
+COGNITIVE_LOG = Path("/srv/dev/cognitive_log.json")
 
-DOMAINS = ["shell", "strategic", "git", "critical"]
+BASE_MIN = 0.3
+BASE_MAX = 0.98
 
-RISK_WEIGHTS = {
-    "shell": 2,
-    "strategic": 1,
-    "git": 3,
-    "critical": 5
-}
+def load_log():
+    if not COGNITIVE_LOG.exists():
+        return []
+    return json.loads(COGNITIVE_LOG.read_text())
 
-def classify_domain(entry):
-    state = entry.get("state")
-
-    if state == "PLAN_READY":
-        return "strategic"
-
-    if state == "EXECUTE":
-        cmd = entry.get("command","").lower()
-
-        if any(x in cmd for x in ["rm ", "drop ", "delete ", "truncate "]):
-            return "critical"
-
-        if "git" in cmd:
-            return "git"
-
-        return "shell"
-
-    return None
-
+def save_log(data):
+    COGNITIVE_LOG.write_text(json.dumps(data, indent=2))
 
 def compute_domain_maturity():
-    if not LOG_FILE.exists():
-        return {d: 0.7 for d in DOMAINS}
+    data = load_log()
 
-    data = json.loads(LOG_FILE.read_text())
+    domains = ["shell", "strategic", "git", "critical"]
+    scores = {d: 0.7 for d in domains}
 
-    scores = {}
-    for domain in DOMAINS:
-        weighted_success = 0
-        weighted_total = 0
+    for entry in data:
+        domain = entry.get("domain")
+        success = entry.get("success")
+        critical = entry.get("critical", False)
 
-        for entry in data:
-            entry_domain = classify_domain(entry)
-            if entry_domain != domain:
-                continue
+        if domain not in scores:
+            continue
 
-            weight = RISK_WEIGHTS.get(domain,1)
-            weighted_total += weight
-
-            if entry.get("success"):
-                weighted_success += weight
-
-        if weighted_total == 0:
-            scores[domain] = 0.7
+        if success:
+            scores[domain] += 0.02
         else:
-            scores[domain] = weighted_success / weighted_total
+            if critical:
+                scores[domain] -= 0.15
+            else:
+                scores[domain] -= 0.03
+
+    # clamp
+    for d in scores:
+        if scores[d] < BASE_MIN:
+            scores[d] = BASE_MIN
+        if scores[d] > BASE_MAX:
+            scores[d] = BASE_MAX
 
     return scores
 
-
-def dynamic_threshold(domain):
+def dynamic_threshold(domain=None):
     scores = compute_domain_maturity()
-    score = scores.get(domain,0.7)
 
-    if score >= 0.9:
-        return 0.75
-    elif score >= 0.8:
-        return 0.85
+    if domain is None:
+        avg = sum(scores.values()) / len(scores)
     else:
+        avg = scores.get(domain, 0.7)
+
+    if avg < 0.6:
+        return 0.97
+    if avg < 0.8:
         return 0.95
+    if avg < 0.9:
+        return 0.90
+    return 0.85
+
+def register_execution(domain, success=True, critical=False):
+    data = load_log()
+
+    data.append({
+        "domain": domain,
+        "success": success,
+        "critical": critical
+    })
+
+    save_log(data)

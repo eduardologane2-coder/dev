@@ -2,7 +2,6 @@ from maturity_engine import register_execution, dynamic_threshold
 
 #!/usr/bin/env python3
 
-import subprocess
 import shutil
 from pathlib import Path
 from datetime import datetime
@@ -19,6 +18,7 @@ from cognitive_engine import cognitive_decision
 from human_renderer import render_human
 from confidence_engine import can_auto_execute
 from cognitive_log_engine import log_decision
+from executor import run
 
 REPO_DIR = Path("/srv/repo")
 WORKSPACES_DIR = Path("/srv/workspaces")
@@ -34,31 +34,8 @@ def load_token():
 def create_workspace():
     WORKSPACES_DIR.mkdir(exist_ok=True)
     ws = WORKSPACES_DIR / f"ws_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    subprocess.run(["git","clone",str(REPO_DIR),str(ws)],stdout=subprocess.PIPE)
+    shutil.copytree(REPO_DIR, ws)
     return ws
-
-def execute(cmd,cwd):
-    result = subprocess.run(cmd,shell=True,cwd=cwd,capture_output=True,text=True)
-    return result.returncode==0, result.stdout+result.stderr
-
-def classify_domain(text: str):
-
-    lower = text.lower()
-
-    if lower.startswith("git"):
-
-        return "git"
-
-    if lower.startswith(("rm","mv","chmod","chown")):
-
-        return "critical"
-
-    if lower.startswith(("mkdir","ls","touch","echo")):
-
-        return "shell"
-
-    return "strategic"
-
 
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != AUTHORIZED_USER:
@@ -83,14 +60,14 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⚙️ Executando comando supervisionado...")
 
     ws = create_workspace()
-    success, output = execute(text, ws)
+    success, output = run(text, cwd=ws)
 
     shutil.rmtree(ws, ignore_errors=True)
 
     if success:
         await update.message.reply_text("✅ Execução concluída.")
     else:
-        await update.message.reply_text("❌ Falha na execução.")
+        await update.message.reply_text(f"❌ Falha:\n{output}")
 
 def main():
     token = load_token()

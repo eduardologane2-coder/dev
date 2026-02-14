@@ -1,0 +1,8 @@
+[
+  {
+    "file": "self_mod_engine.py",
+    "moved_at": "AUTO",
+    "reason": "Duplicação estrutural; substituído por selfmod_engine.py",
+    "review_after_days": 7
+  }
+]

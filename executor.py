@@ -16,23 +16,38 @@ def is_safe(cmd: str):
             return False
     return True
 
-def execute(cmd: str):
+def run_command(cmd: str, cwd: Path = None):
     if not is_safe(cmd):
         return False, "Comando bloqueado por política de segurança."
 
-    try:
-        result = subprocess.run(
-            cmd,
-            shell=True,
-            cwd=WORKSPACE,
-            capture_output=True,
-            text=True
-        )
+    result = subprocess.run(
+        cmd,
+        shell=True,
+        cwd=cwd or WORKSPACE,
+        capture_output=True,
+        text=True
+    )
 
-        if result.returncode != 0:
-            return False, result.stderr.strip()
+    if result.returncode != 0:
+        return False, result.stderr.strip()
 
-        return True, result.stdout.strip()
+    return True, result.stdout.strip()
 
-    except Exception as e:
-        return False, str(e)
+def execute_request(request: dict):
+    if request.get("type") != "EXECUTION_REQUEST":
+        return False, "Tipo inválido."
+
+    results = []
+
+    for cmd in request.get("commands", []):
+        success, output = run_command(cmd)
+        results.append({
+            "command": cmd,
+            "success": success,
+            "output": output
+        })
+
+        if not success:
+            break
+
+    return True, results
