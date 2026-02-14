@@ -1,3 +1,4 @@
+from long_term_handler import longterm_status
 from alignment_handler import alignment_status
 from alignment_engine import check_alignment
 from metrics_handler import metrics_status
@@ -166,6 +167,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
 def main():
     token=load_token()
     app=ApplicationBuilder().token(token).build()
+    app.add_handler(CommandHandler("longterm", longterm_status))
     app.add_handler(CommandHandler("strategy",strategy_status))
     app.add_handler(CommandHandler("metrics", lambda u,c: u.message.reply_text(metrics_status())))
     app.add_handler(CommandHandler("alignment", alignment_status))
