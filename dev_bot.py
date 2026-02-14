@@ -239,7 +239,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
     if not success:
         shutil.rmtree(ws,ignore_errors=True)
         log_execution(cmd,False,output)
-    inc("failures")
+        inc("failures")
         await update.message.reply_text(f"Falha:\n{output}")
         await update.message.reply_text("Workspace destruído.")
         EXECUTING = False
@@ -262,14 +262,13 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
     commit_msg = f"auto(dev): {cmd}"
     subprocess.run(["git","commit","-m",commit_msg],cwd=REPO_DIR)
-    inc("commits")
 
     commit_hash = subprocess.check_output(["git","rev-parse","--short","HEAD"],cwd=REPO_DIR).decode().strip()
 
     shutil.rmtree(ws,ignore_errors=True)
 
     log_execution(cmd,True,output)
-    inc("executions")
+        inc("executions")
     update_patterns(cmd)
 
     # === STRATEGY INTEGRATION ===
