@@ -3,7 +3,7 @@ from pathlib import Path
 from telegram import Update
 from telegram.ext import ContextTypes
 
-LONG_TERM_FILE = Path("/srv/dev/long_term.json")
+LONG_TERM_FILE = Path("/srv/dev/long_term_plan.json")
 
 async def long_term_status_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not LONG_TERM_FILE.exists():
