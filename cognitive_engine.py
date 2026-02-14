@@ -1,54 +1,71 @@
-import json
-from pathlib import Path
-from datetime import datetime
+from intention_engine import classify_intention
 from llm_engine import ask_llm
 
-COGNITIVE_LOG = Path("/srv/dev/cognitive_log.json")
+ALLOWED_STATES = {"EXECUTE", "PLAN", "REJECT", "CONFIRM", "BRIEFING"}
 
-def _ensure_log():
-    if not COGNITIVE_LOG.exists():
-        COGNITIVE_LOG.write_text(json.dumps([], indent=2))
-
-def _log(entry):
-    _ensure_log()
-    data = json.loads(COGNITIVE_LOG.read_text())
-    data.append(entry)
-    COGNITIVE_LOG.write_text(json.dumps(data, indent=2))
-
-def cognitive_decision(instruction: str):
-    prompt = f"""
-Você é o núcleo cognitivo do Dev.
-
-Classifique a instrução abaixo.
-
-Instrução:
-{instruction}
-
-Responda obrigatoriamente em JSON válido no formato:
-
-{{
-  "state": "ANALYZE | PLAN | EXECUTE | REJECT",
-  "justification": "explicação curta"
-}}
-"""
-
-    response = ask_llm(prompt)
-
-    try:
-        parsed = json.loads(response)
-    except:
-        parsed = {
-            "state": "ANALYZE",
-            "justification": "Falha no parse. Default ANALYZE."
-        }
-
-    entry = {
-        "timestamp": str(datetime.now()),
-        "instruction": instruction,
-        "decision": parsed["state"],
-        "justification": parsed["justification"]
+def _base_response():
+    return {
+        "state": None,
+        "plan": None,
+        "justification": None,
+        "confidence": 0.0,
+        "risk": "LOW",
+        "metadata": {}
     }
 
-    _log(entry)
+def cognitive_decision(text: str):
+    intent = classify_intention(text)
+    response = _base_response()
 
-    return parsed["state"], parsed["justification"]
+    if intent == "SHELL_COMMAND":
+        response.update({
+            "state": "EXECUTE",
+            "plan": [text],
+            "justification": "Comando shell detectado.",
+            "confidence": 0.95,
+            "risk": "LOW"
+        })
+        return response
+
+    if intent == "STRATEGIC_INTENT":
+        prompt = f"""
+Você é o núcleo estratégico do Dev.
+Gere um plano técnico estruturado em lista JSON simples.
+Texto: {text}
+"""
+        try:
+            plan = ask_llm(prompt)
+        except Exception as e:
+            response.update({
+                "state": "REJECT",
+                "justification": f"Erro LLM: {e}",
+                "confidence": 0.4,
+                "risk": "MEDIUM"
+            })
+            return response
+
+        response.update({
+            "state": "PLAN",
+            "plan": [plan] if isinstance(plan, str) else plan,
+            "justification": "Intenção estratégica detectada.",
+            "confidence": 0.85,
+            "risk": "LOW"
+        })
+        return response
+
+    if intent == "CONFIRMATION":
+        response.update({
+            "state": "CONFIRM",
+            "justification": "Confirmação aguardada.",
+            "confidence": 0.9,
+            "risk": "LOW"
+        })
+        return response
+
+    response.update({
+        "state": "BRIEFING",
+        "justification": "Preciso entender melhor seu objetivo.",
+        "confidence": 0.7,
+        "risk": "LOW"
+    })
+    return response
