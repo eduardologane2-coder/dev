@@ -1,4 +1,263 @@
 {
-  "patterns": [],
-  "last_update": null
+  "patterns": [
+    {
+      "timestamp": "2026-02-14 14:25:48.349721",
+      "topic": "teste arquitetura",
+      "state": "PLAN_READY",
+      "confidence": 0.8
+    },
+    {
+      "timestamp": "2026-02-14 14:27:11.044812",
+      "topic": "teste meta",
+      "state": "EXECUTE",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:27:11.045089",
+      "topic": "teste meta2",
+      "state": "PLAN_READY",
+      "confidence": 0.8
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.224342",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.224581",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.225040",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.225406",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.225594",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.225806",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.226041",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.226210",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.226365",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.226621",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.226862",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.227099",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.227358",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.227583",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.227896",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.228097",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.228281",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.228459",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.228640",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.228829",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.229075",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.229351",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.229627",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.229908",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.230148",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.230366",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.230676",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.230966",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.231323",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.231600",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.231868",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.232157",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.232462",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.232757",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.233040",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.233399",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.233794",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.234167",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.234551",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    },
+    {
+      "timestamp": "2026-02-14 14:29:02.234880",
+      "topic": "teste",
+      "state": "PLAN_READY",
+      "confidence": 0.9
+    }
+  ],
+  "last_update": "2026-02-14 14:29:02.234884"
 }

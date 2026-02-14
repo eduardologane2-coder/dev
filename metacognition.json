@@ -1,6 +1,6 @@
 {
-  "avg_confidence": 0.0,
-  "execute_ratio": 0.0,
-  "plan_ratio": 0.0,
-  "samples": 0
+  "avg_confidence": 0.895,
+  "execute_ratio": 0.023,
+  "plan_ratio": 0.977,
+  "samples": 43
 }

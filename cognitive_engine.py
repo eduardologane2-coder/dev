@@ -1,124 +1,40 @@
 from intention_engine import classify_intention
 from llm_engine import ask_llm
-import json
-
-CONFIDENCE_THRESHOLD = 0.85
 
 def cognitive_decision(text: str):
-    from semantic_memory_engine import register_pattern
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
     intent = classify_intention(text)
 
-    # EXECUÇÃO DIRETA
     if intent == "SHELL_COMMAND":
-        register_pattern(text, "EXECUTE", 0.9)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
-        register_pattern(text, "PLAN_READY", 0.8)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
         return {
             "state": "EXECUTE",
-            "plan": {
-                "steps": [
-                    {"type": "shell", "content": text}
-                ]
-            },
+            "plan": [text],
             "confidence": 0.95
         }
 
-    # INTENÇÃO ESTRATÉGICA
     if intent == "STRATEGIC_INTENT":
         prompt = f"""
-Responda SOMENTE em JSON válido.
-
-Formato obrigatório:
-{{
-  "steps": [
-    {{
-      "type": "analysis|shell|refactor|question",
-      "content": "descrição objetiva"
-    }}
-  ]
-}}
-
-Se faltar contexto, gere apenas um step do tipo "question".
-
+Você é o núcleo estratégico do Dev.
+Se houver contexto suficiente, gere plano técnico estruturado numerado.
+Caso contrário, peça apenas as informações faltantes.
 Texto: {text}
 """
+        response = ask_llm(prompt)
 
-        raw = ask_llm(prompt)
-
-        try:
-            plan = json.loads(raw)
-        except:
-        register_pattern(text, "EXECUTE", 0.9)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
-        register_pattern(text, "PLAN_READY", 0.8)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
+        if not response or len(response.strip()) < 20:
             return {
                 "state": "BRIEFING",
-                "message": "Plano inválido. Necessário mais contexto.",
-                "confidence": 0.4
+                "message": "Preciso de mais contexto antes de estruturar um plano.",
+                "confidence": 0.5
             }
 
-        register_pattern(text, "EXECUTE", 0.9)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
-        register_pattern(text, "PLAN_READY", 0.8)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
         return {
             "state": "PLAN_READY",
-            "plan": plan,
+            "plan": response.strip(),
             "confidence": 0.8
         }
 
-    if intent == "CONFIRMATION":
-        register_pattern(text, "EXECUTE", 0.9)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
-        register_pattern(text, "PLAN_READY", 0.8)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
-        return {
-            "state": "CONFIRM",
-            "confidence": 0.7
-        }
-
-        register_pattern(text, "EXECUTE", 0.9)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
-        register_pattern(text, "PLAN_READY", 0.8)
-    from metacognition_engine import recalculate_meta
-    recalculate_meta()
-    from phase_engine import evaluate_phase
-    evaluate_phase()
     return {
         "state": "BRIEFING",
         "message": "Preciso entender melhor seu objetivo.",
-        "confidence": 0.6
+        "confidence": 0.4
     }
