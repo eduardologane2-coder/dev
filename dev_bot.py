@@ -99,7 +99,7 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ==========================
 
     decision_data = cognitive_decision(text)
-    decision = decision_data.get("decision")
+    # decision já definido via unpack
 
     if decision == "PLAN":
         await update.message.reply_text("🧠 Plano estratégico gerado pela LLM.")
