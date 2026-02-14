@@ -1,0 +1,26 @@
+{
+  "vision": "Dev evoluir continuamente até autonomia estratégica plena e arquitetural.",
+  "horizon_years": 3,
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Autonomia Estratégica Estável",
+      "target_stage": "strategic",
+      "completed": true
+    },
+    {
+      "id": "M2",
+      "title": "Autonomia Arquitetural",
+      "target_stage": "architectural",
+      "completed": false
+    },
+    {
+      "id": "M3",
+      "title": "Auto-Otimização Contínua",
+      "target_stage": "self_evolving",
+      "completed": false
+    }
+  ],
+  "risk_registry": [],
+  "last_review": null
+}
