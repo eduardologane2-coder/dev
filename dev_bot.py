@@ -82,30 +82,28 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
     global EXECUTING, PENDING_CMD
 
     if update.effective_user.id!=AUTHORIZED_USER:
-        return
+    return
 
     text = update.message.text.strip()
     mode = detect_mode(text)
-    persist_mode(mode)
+
     if mode == "modo_planejamento":
         await update.message.reply_text("🧠 Entrando em modo PLANEJAMENTO automático.")
-                return
+    return
+
     if mode == "modo_analise":
         await update.message.reply_text("🔎 Entrando em modo ANÁLISE automática.")
-                return
-
-
-    # Proposta
+    return
     if PENDING_CMD is None:
         PENDING_CMD=text
         await update.message.reply_text(f"Proposta:\n\n{text}\n\nExecutar? (sim)")
-        return
+    return
 
     # Cancelamento
     if text.lower()!="sim":
         await update.message.reply_text("Cancelado.")
         PENDING_CMD=None
-        return
+    return
 
     cmd=PENDING_CMD
     PENDING_CMD=None
@@ -120,18 +118,18 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
         else:
             inc("rollbacks")
             await update.message.reply_text(msg)
-        return
+    return
 
     if EXECUTING:
         await update.message.reply_text("Execução já em andamento.")
-        return
+    return
 
     EXECUTING=True
 
     if not validate_repo():
         await update.message.reply_text("Repo inválido.")
         EXECUTING=False
-        return
+    return
 
     await update.message.reply_text("Criando workspace...")
     ws=create_workspace()
@@ -146,7 +144,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Falha:\n{output}")
         await update.message.reply_text("Workspace destruído.")
         EXECUTING=False
-        return
+    return
 
     subprocess.run(["cp","-r",f"{ws}/.",str(REPO_DIR)])
     subprocess.run(["git","add","."],cwd=REPO_DIR)
@@ -157,7 +155,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
         shutil.rmtree(ws,ignore_errors=True)
         await update.message.reply_text("Nenhuma alteração.")
         EXECUTING=False
-        return
+    return
 
     commit_msg=f"auto(dev): {cmd}"
     subprocess.run(["git","commit","-m",commit_msg],cwd=REPO_DIR)
@@ -197,4 +195,3 @@ try:
     from alignment_engine import validate_alignment, register_alignment_check
 except:
     pass
-
