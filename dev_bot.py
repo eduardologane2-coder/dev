@@ -1,3 +1,4 @@
+from long_term_handler import long_term_status_handler
 from long_term_handler import longterm_status
 from alignment_handler import alignment_status
 from alignment_engine import check_alignment
