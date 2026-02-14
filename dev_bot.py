@@ -18,6 +18,7 @@ from telegram.ext import (
 
 from llm_engine import ask_llm
 from strategy_llm_engine import evaluate_strategy
+from cognitive_engine import cognitive_decision
 from metrics_engine import inc, metrics_status
 from alignment_engine import validate_alignment
 from selfmod_engine import is_self_mod_command, apply_self_mod
@@ -79,6 +80,23 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     text = update.message.text.strip()
+
+    # ==========================
+    # COGNITIVE DECISION ENGINE
+    # ==========================
+    decision_data = cognitive_decision(text)
+    decision = decision_data.get("decision")
+
+    if decision == "REJECT":
+        await update.message.reply_text(f"❌ REJEITADO: {decision_data.get('reason')}")
+        return
+
+    if decision == "PLAN":
+        plan_steps = "\n".join([f"- {p}" for p in decision_data.get("plan", [])])
+        await update.message.reply_text("🧠 Plano estratégico gerado:")
+        await update.message.reply_text(plan_steps)
+        return
+
 
     # ==========================
     # ALIGNMENT CHECK
