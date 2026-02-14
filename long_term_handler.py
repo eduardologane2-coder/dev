@@ -1,26 +1,29 @@
 import json
+from pathlib import Path
 from telegram import Update
 from telegram.ext import ContextTypes
-from long_term_engine import review_plan, sync_with_evolution
-from pathlib import Path
 
-DEV_DIR = Path("/srv/dev")
-PLAN_FILE = DEV_DIR / "long_term_plan.json"
+LONG_TERM_FILE = Path("/srv/dev/long_term.json")
 
-async def longterm_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    review_plan()
-    sync_with_evolution()
+async def long_term_status_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not LONG_TERM_FILE.exists():
+        await update.message.reply_text("Plano de longo prazo não encontrado.")
+        return
 
-    plan = json.loads(PLAN_FILE.read_text())
+    data = json.loads(LONG_TERM_FILE.read_text())
 
-    milestones = "\n".join(
-        [f"- {m['id']} | {m['title']} | concluído: {m['completed']}"
-         for m in plan["milestones"]]
+    vision = data.get("vision", "N/A")
+    horizon = data.get("horizon_years", "N/A")
+    milestones = data.get("milestones", [])
+    last_review = data.get("last_review", "None")
+
+    milestone_text = "\n".join(
+        [f"- {m['id']} | {m['title']} | concluído: {m['completed']}" for m in milestones]
     )
 
     await update.message.reply_text(
-        f"🌍 VISÃO:\n{plan['vision']}\n\n"
-        f"📆 Horizonte: {plan['horizon']}\n\n"
-        f"🎯 Milestones:\n{milestones}\n\n"
-        f"Última revisão: {plan['last_review']}"
+        f"🌍 VISÃO:\n{vision}\n\n"
+        f"📆 Horizonte: {horizon} anos\n\n"
+        f"🎯 Milestones:\n{milestone_text}\n\n"
+        f"Última revisão: {last_review}"
     )
