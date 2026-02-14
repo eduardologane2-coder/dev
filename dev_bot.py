@@ -1,3 +1,4 @@
+from mode_engine import detect_mode, persist_mode
 from llm_engine import llm_propose
 from long_term_handler import long_term_status_handler
 from long_term_handler import long_term_status_handler
@@ -84,6 +85,15 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
         return
 
     text = update.message.text.strip()
+    mode = detect_mode(text)
+    persist_mode(mode)
+    if mode == "modo_planejamento":
+        await update.message.reply_text("🧠 Entrando em modo PLANEJAMENTO automático.")
+        return
+    if mode == "modo_analise":
+        await update.message.reply_text("🔎 Entrando em modo ANÁLISE automática.")
+        return
+
 
     # Proposta
     if PENDING_CMD is None:
