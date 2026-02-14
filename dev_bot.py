@@ -19,6 +19,11 @@ from telegram.ext import (
 from llm_engine import ask_llm
 from strategy_llm_engine import evaluate_strategy
 from cognitive_engine import cognitive_decision
+from plan_validator import validate_plan
+from plan_executor import execute_plan
+import json
+from datetime import datetime
+
 from metrics_engine import inc, metrics_status
 from alignment_engine import validate_alignment
 from selfmod_engine import is_self_mod_command, apply_self_mod
@@ -91,8 +96,50 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"❌ REJEITADO: {decision_data.get('reason')}")
         return
 
+    
+    # ==========================
+    # PLAN VALIDATION + EXECUTION
+    # ==========================
     if decision == "PLAN":
-        plan_steps = "\n".join([f"- {p}" for p in decision_data.get("plan", [])])
+        plan_steps = decision_data.get("plan", [])
+
+        valid, msg = validate_plan(plan_steps)
+        if not valid:
+            await update.message.reply_text(f"❌ Plano inválido: {msg}")
+            return
+
+        await update.message.reply_text("🧪 Plano validado. Executando...")
+
+        results = execute_plan(plan_steps)
+
+        success = all(r["success"] for r in results)
+
+        # Registro estratégico
+        try:
+            log_file = Path("/srv/dev/strategy_log.json")
+            logs = []
+            if log_file.exists():
+                logs = json.loads(log_file.read_text())
+
+            logs.append({
+                "timestamp": str(datetime.now()),
+                "instruction": text,
+                "decision": decision,
+                "plan": plan_steps,
+                "success": success
+            })
+
+            log_file.write_text(json.dumps(logs, indent=2))
+        except:
+            pass
+
+        if success:
+            await update.message.reply_text("✅ Plano executado com sucesso.")
+        else:
+            await update.message.reply_text("⚠️ Execução interrompida por falha.")
+
+        return
+([f"- {p}" for p in decision_data.get("plan", [])])
         await update.message.reply_text("🧠 Plano estratégico gerado:")
         await update.message.reply_text(plan_steps)
         return
