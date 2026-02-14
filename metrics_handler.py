@@ -1,15 +1,20 @@
-from telegram import Update
-from telegram.ext import ContextTypes
-from metrics_engine import get_metrics
+import json
+from pathlib import Path
 
-async def metrics_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    data = get_metrics()
-    await update.message.reply_text(
-        f"📊 MÉTRICAS DO DEV\n\n"
-        f"Execuções: {data['executions']}\n"
-        f"Commits: {data['commits']}\n"
-        f"SelfMods: {data['selfmods']}\n"
-        f"Falhas: {data['failures']}\n"
-        f"Rollbacks: {data['rollbacks']}\n"
-        f"Última atualização: {data['last_update']}"
+METRICS_FILE = Path("/srv/dev/metrics.json")
+
+def metrics_status():
+    if not METRICS_FILE.exists():
+        return "📊 Nenhuma métrica registrada ainda."
+
+    data = json.loads(METRICS_FILE.read_text())
+
+    return (
+        "📊 MÉTRICAS DO DEV\n\n"
+        f"Execuções: {data.get('executions',0)}\n"
+        f"Commits: {data.get('commits',0)}\n"
+        f"SelfMods: {data.get('selfmods',0)}\n"
+        f"Falhas: {data.get('failures',0)}\n"
+        f"Rollbacks: {data.get('rollbacks',0)}\n"
+        f"Última atualização: {data.get('last_update')}"
     )
