@@ -6,12 +6,18 @@ CONFIDENCE_THRESHOLD = 0.85
 
 def cognitive_decision(text: str):
     from semantic_memory_engine import register_pattern
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
     intent = classify_intention(text)
 
     # EXECUÇÃO DIRETA
     if intent == "SHELL_COMMAND":
         register_pattern(text, "EXECUTE", 0.9)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         register_pattern(text, "PLAN_READY", 0.8)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         return {
             "state": "EXECUTE",
             "plan": {
@@ -48,7 +54,11 @@ Texto: {text}
             plan = json.loads(raw)
         except:
         register_pattern(text, "EXECUTE", 0.9)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         register_pattern(text, "PLAN_READY", 0.8)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
             return {
                 "state": "BRIEFING",
                 "message": "Plano inválido. Necessário mais contexto.",
@@ -56,7 +66,11 @@ Texto: {text}
             }
 
         register_pattern(text, "EXECUTE", 0.9)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         register_pattern(text, "PLAN_READY", 0.8)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         return {
             "state": "PLAN_READY",
             "plan": plan,
@@ -65,14 +79,22 @@ Texto: {text}
 
     if intent == "CONFIRMATION":
         register_pattern(text, "EXECUTE", 0.9)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         register_pattern(text, "PLAN_READY", 0.8)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         return {
             "state": "CONFIRM",
             "confidence": 0.7
         }
 
         register_pattern(text, "EXECUTE", 0.9)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
         register_pattern(text, "PLAN_READY", 0.8)
+    from metacognition_engine import recalculate_meta
+    recalculate_meta()
     return {
         "state": "BRIEFING",
         "message": "Preciso entender melhor seu objetivo.",
