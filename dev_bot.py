@@ -69,6 +69,31 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text.strip()
 
+
+    state, justification = cognitive_decision(text)
+
+
+
+    if state == "PLAN":
+
+        await update.message.reply_text("🧠 Plano estratégico gerado:")
+
+        await update.message.reply_text(justification)
+
+        return
+
+
+
+    if state == "REJECT":
+
+        await update.message.reply_text("🚫 Instrução rejeitada.")
+
+        await update.message.reply_text(justification)
+
+        return
+
+
+
     # ==========================
     # COGNITIVE DECISION
     # ==========================
