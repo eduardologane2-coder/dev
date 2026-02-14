@@ -87,13 +87,15 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text.strip()
     mode = detect_mode(text)
+    # ==========================
+    # MODO PLANEJAMENTO COGNITIVO
+    # ==========================
 
     if mode == "modo_planejamento":
         await update.message.reply_text("🧠 Gerando plano estratégico via LLM...")
         plan = generate_plan(text)
         await update.message.reply_text(plan)
         return
-    return
 
     if mode == "modo_analise":
         await update.message.reply_text("🔎 Entrando em modo ANÁLISE automática.")
