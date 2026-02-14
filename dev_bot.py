@@ -48,8 +48,6 @@ def execute(cmd, cwd):
     app.run_polling()
 
 
-if __name__ == "__main__":
-    main()
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global PENDING_CMD
 
@@ -106,12 +104,23 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # MAIN
 # ==========================
 
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
+
+    print("DEV BOT ONLINE - CLEAN COGNITIVE CORE")
+    app.run_polling()
+
+
+
+
+
+# ==========================
+# MAIN
+# ==========================
+
 def main():
     token = load_token()
     app = ApplicationBuilder().token(token).build()
-
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
-
     print("DEV BOT ONLINE - CLEAN COGNITIVE CORE")
     app.run_polling()
 
