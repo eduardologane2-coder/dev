@@ -1,26 +1,57 @@
-from alignment_contract import load_contract
-from datetime import datetime
 import json
 from pathlib import Path
+from datetime import datetime
 
-STRATEGY_FILE = Path("/srv/dev/strategy.json")
+DEV_PATH = Path("/srv/dev")
+CONTRACT_FILE = DEV_PATH / "alignment_contract.json"
+LOG_FILE = DEV_PATH / "alignment_log.json"
 
-def validate_alignment(command_text):
-    contract = load_contract()
-    strategy = json.loads(STRATEGY_FILE.read_text())
+def load_contract():
+    if not CONTRACT_FILE.exists():
+        return {
+            "joseph_objectives": [],
+            "dev_objectives": [],
+            "rules": [
+                "Dev não pode violar objetivo ativo de Joseph.",
+                "Dev deve priorizar estabilidade antes de expansão.",
+                "Conflitos devem ser explicitamente confirmados."
+            ]
+        }
+    return json.loads(CONTRACT_FILE.read_text())
 
-    objective = strategy.get("objective_active", {}).get("title", "")
+def save_contract(data):
+    CONTRACT_FILE.write_text(json.dumps(data, indent=2))
 
-    if "apagar estratégia" in command_text.lower():
-        return False, "Comando conflita com objetivo estratégico ativo."
+def log_alignment(event):
+    logs = []
+    if LOG_FILE.exists():
+        logs = json.loads(LOG_FILE.read_text())
+    logs.append(event)
+    LOG_FILE.write_text(json.dumps(logs, indent=2))
 
-    if len(contract["joseph_objectives"]) == 0:
-        return True, "Nenhum objetivo explícito de Joseph definido."
+def check_alignment(instruction):
+    data = load_contract()
+    active = [o["title"] for o in data["joseph_objectives"]]
 
-    return True, "Alinhamento válido."
+    for obj in active:
+        if "apagar" in instruction.lower() and obj.lower() in instruction.lower():
+            return False, "Instrução conflita com objetivo Joseph."
 
-def register_alignment_check():
-    contract = load_contract()
-    contract["last_alignment_check"] = str(datetime.now())
-    from alignment_contract import save_contract
-    save_contract(contract)
+    return True, None
+
+def add_joseph_objective(title, weight=1.0):
+    data = load_contract()
+    data["joseph_objectives"].append({
+        "title": title,
+        "weight": weight,
+        "created_at": str(datetime.now())
+    })
+    save_contract(data)
+
+def add_dev_objective(title):
+    data = load_contract()
+    data["dev_objectives"].append({
+        "title": title,
+        "created_at": str(datetime.now())
+    })
+    save_contract(data)
