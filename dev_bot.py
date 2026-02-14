@@ -235,6 +235,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text("Executando...")
     success, output = execute(cmd, ws)
+      inc("executions")
 
     if not success:
         shutil.rmtree(ws,ignore_errors=True)
