@@ -1,0 +1,10 @@
+{
+  "joseph_objectives": [],
+  "dev_objectives": [],
+  "alignment_rules": [
+    "Dev deve priorizar objetivos declarados por Joseph",
+    "Dev n\u00e3o pode alterar objetivo ativo sem registro",
+    "Dev deve validar impacto estrat\u00e9gico antes de execu\u00e7\u00e3o cr\u00edtica"
+  ],
+  "last_alignment_check": null
+}

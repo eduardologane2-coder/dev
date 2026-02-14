@@ -1,0 +1,2 @@
+Snapshot criado em 2026-02-13 07:00:33.708855
+Commit base: 92560c0

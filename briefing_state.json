@@ -1,0 +1,21 @@
+{
+  "active": true,
+  "history": [
+    {
+      "role": "user",
+      "content": "Quero melhorar a arquitetura"
+    },
+    {
+      "role": "assistant",
+      "content": "Para eu gerar um plano t\u00e9cnico numerado de melhoria de arquitetura, ainda falta contexto. Responda objetivamente (pode ser em t\u00f3picos) \u00e0s perguntas abaixo:\n\n1) **Tipo de sistema**: \u00e9 web, mobile, API, desktop, IoT?  \n2) **Dom\u00ednio e principais fluxos**: o que o produto faz e quais s\u00e3o os 3\u20135 fluxos cr\u00edticos (ex.: cadastro, pagamento, relat\u00f3rios)?  \n3) **Stack atual**: linguagens, frameworks, banco(s), mensageria, cache, frontend, infra (Docker/K8s/VM), cloud (AWS/GCP/Azure/on-prem).  \n4) **Arquitetura atual**: mon\u00f3lito, modular monolith, microservi\u00e7os, serverless? (se tiver, descreva m\u00f3dulos/servi\u00e7os).  \n5) **Escala e carga**: usu\u00e1rios, requisi\u00e7\u00f5es/seg, picos, volume de dados, crescimento esperado.  \n6) **Principais dores hoje**: performance, custo, deploy lento, bugs, acoplamento, time-to-market, indisponibilidade, dados inconsistentes, etc.  \n7) **Requisitos n\u00e3o-funcionais**: SLA/uptime, lat\u00eancia alvo, compliance (LGPD/PCI), auditoria, multi-tenant, observabilidade.  \n8) **Processo de entrega**: CI/CD existe? ambientes (dev/stage/prod), frequ\u00eancia de deploy, estrat\u00e9gia de rollback.  \n9) **Time**: tamanho, senioridade, restri\u00e7\u00f5es (prazo/or\u00e7amento), capacidade de refatora\u00e7\u00e3o vs. features.  \n10) **Restri\u00e7\u00f5es**: legado que n\u00e3o pode mudar, contratos com clientes, integra\u00e7\u00f5es externas cr\u00edticas.\n\nSe voc\u00ea colar tamb\u00e9m um **diagrama textual** (mesmo simples) do \u201ccomo \u00e9 hoje\u201d e \u201conde d\u00f3i\u201d, eu consigo transformar isso em um **plano t\u00e9cnico numerado** com fases, prioridades, riscos e entreg\u00e1veis."
+    },
+    {
+      "role": "user",
+      "content": "mkdir teste"
+    },
+    {
+      "role": "assistant",
+      "content": "N\u00e3o h\u00e1 contexto suficiente para eu gerar um plano de melhoria de arquitetura: \u201c`mkdir teste`\u201d s\u00f3 indica um comando de cria\u00e7\u00e3o de pasta e n\u00e3o descreve o sistema.\n\nPara eu montar um **plano t\u00e9cnico numerado**, faltam (responda em t\u00f3picos, bem objetivo):\n\n1) **Tipo de sistema** (web/mobile/API/desktop/IoT) e objetivo do produto  \n2) **Fluxos cr\u00edticos** (3\u20135)  \n3) **Stack atual** (linguagens, frameworks, banco, mensageria/cache, frontend, infra/cloud)  \n4) **Arquitetura atual** (mon\u00f3lito/m\u00f3dulos/microservi\u00e7os/serverless) + um diagrama textual simples  \n5) **Escala/carga** (usu\u00e1rios, RPS, picos, volume de dados)  \n6) **Dores principais** (deploy, performance, custo, acoplamento, bugs, indisponibilidade, dados)  \n7) **Requisitos n\u00e3o-funcionais** (SLA, lat\u00eancia, LGPD/PCI, auditoria, multi-tenant, observabilidade)  \n8) **Entrega** (CI/CD, ambientes, frequ\u00eancia de deploy, rollback)  \n9) **Time e restri\u00e7\u00f5es** (tamanho, senioridade, prazo/or\u00e7amento, quanto pode refatorar)  \n10) **Integra\u00e7\u00f5es/legados** que n\u00e3o podem mudar\n\nSe voc\u00ea responder isso, eu devolvo um **plano numerado por fases** (quick wins \u2192 m\u00e9dio prazo \u2192 longo prazo), com prioridades, riscos e entreg\u00e1veis."
+    }
+  ]
+}

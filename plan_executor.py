@@ -1,18 +1,15 @@
 import subprocess
 
-def execute_plan(plan_steps):
+def execute_plan(plan):
     results = []
 
-    for step in plan_steps:
-        result = subprocess.run(
-            step,
-            shell=True,
-            capture_output=True,
-            text=True
-        )
+    if isinstance(plan, str):
+        return [{"success": False, "error": "Plano textual não executável."}]
 
+    for step in plan:
+        result = subprocess.run(step, shell=True, capture_output=True, text=True)
         results.append({
-            "step": step,
+            "command": step,
             "success": result.returncode == 0,
             "output": result.stdout + result.stderr
         })

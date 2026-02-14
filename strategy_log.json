@@ -1,0 +1,142 @@
+[
+  {
+    "timestamp": "2026-02-13 08:51:13.351569",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_planejamento",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:11:23.861786",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_planejamento",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:11:56.390603",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:12:06.954514",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:14:09.497301",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_planejamento",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:19:12.065695",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:19:16.197087",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:20:54.628859",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:20:58.659984",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:23:44.559129",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:23:48.183692",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:27:57.127421",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 09:28:00.574192",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 20:34:55.931271",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 20:35:00.699680",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 20:51:57.791624",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 20:52:02.942890",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 20:56:19.939807",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 20:56:23.807602",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  },
+  {
+    "timestamp": "2026-02-13 20:57:58.891346",
+    "decision": "mode_detected",
+    "reason": "Mensagem classificada como modo_execucao",
+    "impact": null,
+    "commit": null
+  }
+]

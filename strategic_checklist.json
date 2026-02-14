@@ -1,0 +1,97 @@
+{
+  "meta": "Autonomia estratégica completa",
+  "locked": true,
+  "current_step": 1,
+  "steps": [
+    {
+      "id": 1,
+      "name": "Reestruturar strategy.json",
+      "status": "pending",
+      "validators": {
+        "files_must_exist": ["/srv/dev/strategy.json", "/srv/dev/strategy_log.json"],
+        "json_must_have_keys": {
+          "/srv/dev/strategy.json": ["objective", "current_focus", "roadmap", "open_tasks", "technical_debt", "last_update"]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "Modo Estratégico Formal",
+      "status": "pending",
+      "validators": {
+        "python_must_contain": {
+          "/srv/dev/dev_bot.py": ["def strategy_status", "def strategy_update", "CommandHandler(\"strategy\"", "CommandHandler(\"strategy_set\""]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "Registro Estratégico Integrado",
+      "status": "pending",
+      "validators": {
+        "files_must_exist": ["/srv/dev/strategy_log.json"],
+        "json_must_be_list": ["/srv/dev/strategy_log.json"]
+      }
+    },
+    {
+      "id": 4,
+      "name": "Decomposição automática real de tarefa",
+      "status": "pending",
+      "validators": {
+        "python_must_contain": {
+          "/srv/dev/dev_bot.py": ["def decompose_task", "DECOMPOSE"]
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "Avaliação de impacto antes do commit",
+      "status": "pending",
+      "validators": {
+        "python_must_contain": {
+          "/srv/dev/dev_bot.py": ["impact", "git status --porcelain"]
+        }
+      }
+    },
+    {
+      "id": 6,
+      "name": "Loop pós-commit estratégico",
+      "status": "pending",
+      "validators": {
+        "python_must_contain": {
+          "/srv/dev/dev_bot.py": ["post_commit_review", "atualizar roadmap"]
+        }
+      }
+    },
+    {
+      "id": 7,
+      "name": "Priorizador interno real",
+      "status": "pending",
+      "validators": {
+        "python_must_contain": {
+          "/srv/dev/dev_bot.py": ["def prioritize_tasks", "impact", "risk", "urgency"]
+        }
+      }
+    },
+    {
+      "id": 8,
+      "name": "Detector de conflito estratégico",
+      "status": "pending",
+      "validators": {
+        "python_must_contain": {
+          "/srv/dev/dev_bot.py": ["def detect_conflict", "conflita", "confirmar"]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "name": "Sistema de estado evolutivo",
+      "status": "pending",
+      "validators": {
+        "python_must_contain": {
+          "/srv/dev/dev_bot.py": ["STATE_VERSION", "migrate_state", "state.json"]
+        }
+      }
+    }
+  ]
+}

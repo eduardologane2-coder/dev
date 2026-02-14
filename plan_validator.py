@@ -1,8 +1,13 @@
-def validate_plan(plan_steps):
-    if not plan_steps:
-        return False, "Plano vazio"
+def validate_plan(plan):
+    if not plan:
+        return False, "Plano vazio."
 
-    if len(plan_steps) > 20:
-        return False, "Plano excessivamente grande"
+    if isinstance(plan, str):
+        return True, "Plano textual aceito."
 
-    return True, "Plano válido"
+    if isinstance(plan, list):
+        if len(plan) == 0:
+            return False, "Plano sem passos."
+        return True, "Plano válido."
+
+    return False, "Formato de plano inválido."

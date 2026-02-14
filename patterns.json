@@ -1,0 +1,5 @@
+{
+  "touch teste_autonomia_real.txt": 1,
+  "echo \"teste estrat\u00e9gico\" >> README.md": 1,
+  "echo \"loop estrat\u00e9gico final\" >> README.md": 1
+}

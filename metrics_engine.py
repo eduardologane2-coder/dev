@@ -16,18 +16,27 @@ DEFAULT_METRICS = {
 def _load():
     if not METRICS_FILE.exists():
         METRICS_FILE.write_text(json.dumps(DEFAULT_METRICS, indent=2))
-        return DEFAULT_METRICS.copy()
     return json.loads(METRICS_FILE.read_text())
 
 def _save(data):
-    data["last_update"] = str(datetime.now())
     METRICS_FILE.write_text(json.dumps(data, indent=2))
 
-def inc(key):
+def inc(key: str):
     data = _load()
-    if key in data:
-        data[key] += 1
+    if key not in data:
+        data[key] = 0
+    data[key] += 1
+    data["last_update"] = str(datetime.now())
     _save(data)
 
-def get_metrics():
-    return _load()
+def metrics_status():
+    data = _load()
+    return (
+        "📊 MÉTRICAS DO DEV\n\n"
+        f"Execuções: {data.get('executions',0)}\n"
+        f"Commits: {data.get('commits',0)}\n"
+        f"SelfMods: {data.get('selfmods',0)}\n"
+        f"Falhas: {data.get('failures',0)}\n"
+        f"Rollbacks: {data.get('rollbacks',0)}\n"
+        f"Última atualização: {data.get('last_update')}"
+    )

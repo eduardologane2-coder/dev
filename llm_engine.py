@@ -1,21 +1,34 @@
 import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
+# Carrega .env explicitamente
+load_dotenv("/srv/dev/.env")
+
 def ask_llm(prompt: str) -> str:
-    api_key = os.getenv("OPENAI_API_KEY")
+    provider = os.getenv("LLM_PROVIDER")
+    model = os.getenv("LLM_MODEL")
+    api_key = os.getenv("LLM_API_KEY")
 
     if not api_key:
-        return "LLM não configurada. Defina OPENAI_API_KEY no .env"
+        return "LLM não configurada no .env (LLM_API_KEY ausente)"
 
-    client = OpenAI(api_key=api_key)
+    if provider != "openai":
+        return f"Provider não suportado: {provider}"
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "Você é o núcleo cognitivo estratégico do Dev."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.2
-    )
+    try:
+        client = OpenAI(api_key=api_key)
 
-    return response.choices[0].message.content
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "Você é o núcleo cognitivo estratégico do Dev."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2
+        )
+
+        return response.choices[0].message.content
+
+    except Exception as e:
+        return f"Erro LLM: {e}"
