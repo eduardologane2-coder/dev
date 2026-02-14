@@ -1,3 +1,5 @@
+from metrics_handler import metrics_status
+from alignment_handler import alignment_status_handler
 #!/usr/bin/env python3
 
 import json
@@ -163,6 +165,8 @@ def main():
     token=load_token()
     app=ApplicationBuilder().token(token).build()
     app.add_handler(CommandHandler("strategy",strategy_status))
+    app.add_handler(CommandHandler("metrics", lambda u,c: u.message.reply_text(metrics_status())))
+    app.add_handler(CommandHandler("alignment", alignment_status_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND,handle))
     print("DEV BOT ONLINE - REBUILT CORE")
     app.run_polling()
