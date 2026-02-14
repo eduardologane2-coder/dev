@@ -1,43 +1,39 @@
-import json
-from pathlib import Path
-from datetime import datetime
+import unicodedata
 
-STRATEGY_FILE = Path("/srv/dev/strategy.json")
+def normalize(text: str) -> str:
+    text = text.lower()
+    text = unicodedata.normalize("NFD", text)
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    return text.strip()
 
-PLANNING_KEYWORDS = [
-    "estratégia",
+PLANEJAMENTO_PREFIXES = (
+    "quero",
+    "preciso",
+    "como",
+    "planeje",
     "planejar",
-    "arquitetura",
-    "melhorar",
-    "evoluir",
-    "refatorar"
-]
+    "planejamento",
+)
 
-ANALYSIS_KEYWORDS = [
+ANALISE_PREFIXES = (
+    "analise",
     "analisar",
+    "analisa",
     "avaliar",
-    "diagnosticar",
-    "revisar",
-    "verificar"
-]
+    "avalie",
+    "examine",
+    "examinar",
+)
 
 def detect_mode(text: str) -> str:
-    lower = text.lower()
+    t = normalize(text)
 
-    if any(k in lower for k in PLANNING_KEYWORDS):
-        return "modo_planejamento"
+    for p in ANALISE_PREFIXES:
+        if t.startswith(p):
+            return "modo_analise"
 
-    if any(k in lower for k in ANALYSIS_KEYWORDS):
-        return "modo_analise"
+    for p in PLANEJAMENTO_PREFIXES:
+        if t.startswith(p):
+            return "modo_planejamento"
 
     return "modo_execucao"
-
-
-def persist_mode(mode: str):
-    if not STRATEGY_FILE.exists():
-        return
-
-    data = json.loads(STRATEGY_FILE.read_text())
-    data["current_mode"] = mode
-    data["last_update"] = str(datetime.now())
-    STRATEGY_FILE.write_text(json.dumps(data, indent=2))
