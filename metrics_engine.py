@@ -1,11 +1,10 @@
 import json
-from datetime import datetime
 from pathlib import Path
+from datetime import datetime
 
-DEV_DIR = Path("/srv/dev")
-METRICS_FILE = DEV_DIR / "metrics.json"
+METRICS_FILE = Path("/srv/dev/metrics.json")
 
-DEFAULT = {
+DEFAULT_METRICS = {
     "executions": 0,
     "commits": 0,
     "selfmods": 0,
@@ -16,7 +15,8 @@ DEFAULT = {
 
 def _load():
     if not METRICS_FILE.exists():
-        METRICS_FILE.write_text(json.dumps(DEFAULT, indent=2))
+        METRICS_FILE.write_text(json.dumps(DEFAULT_METRICS, indent=2))
+        return DEFAULT_METRICS.copy()
     return json.loads(METRICS_FILE.read_text())
 
 def _save(data):
