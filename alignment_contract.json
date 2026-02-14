@@ -1,0 +1,9 @@
+{
+  "joseph_objectives": [],
+  "dev_objectives": [],
+  "rules": [
+    "Dev não pode violar objetivo ativo de Joseph.",
+    "Dev deve priorizar estabilidade antes de expansão.",
+    "Conflitos devem ser explicitamente confirmados."
+  ]
+}
