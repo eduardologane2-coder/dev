@@ -1,4 +1,4 @@
-from maturity_engine import dynamic_threshold
+from maturity_engine import dynamic_threshold, classify_domain
 #!/usr/bin/env python3
 
 import subprocess

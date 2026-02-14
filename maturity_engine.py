@@ -3,52 +3,68 @@ from pathlib import Path
 
 LOG_FILE = Path("/srv/dev/cognitive_log.json")
 
+DOMAINS = ["shell", "strategic", "git", "critical"]
+
 RISK_WEIGHTS = {
-    "BRIEFING": 0,
-    "PLAN_READY": 1,
-    "EXECUTE_LOW": 2,
-    "EXECUTE_HIGH": 4
+    "shell": 2,
+    "strategic": 1,
+    "git": 3,
+    "critical": 5
 }
 
-def classify_risk(entry):
+def classify_domain(entry):
     state = entry.get("state")
 
     if state == "PLAN_READY":
-        return RISK_WEIGHTS["PLAN_READY"]
+        return "strategic"
 
     if state == "EXECUTE":
-        cmd = entry.get("command","")
-        if any(x in cmd for x in ["rm", "git reset", "drop", "delete"]):
-            return RISK_WEIGHTS["EXECUTE_HIGH"]
-        return RISK_WEIGHTS["EXECUTE_LOW"]
+        cmd = entry.get("command","").lower()
 
-    return 0
+        if any(x in cmd for x in ["rm ", "drop ", "delete ", "truncate "]):
+            return "critical"
 
-def compute_maturity():
+        if "git" in cmd:
+            return "git"
+
+        return "shell"
+
+    return None
+
+
+def compute_domain_maturity():
     if not LOG_FILE.exists():
-        return 0.5
+        return {d: 0.7 for d in DOMAINS}
 
     data = json.loads(LOG_FILE.read_text())
 
-    weighted_success = 0
-    weighted_total = 0
+    scores = {}
+    for domain in DOMAINS:
+        weighted_success = 0
+        weighted_total = 0
 
-    for entry in data:
-        weight = classify_risk(entry)
-        if weight == 0:
-            continue
+        for entry in data:
+            entry_domain = classify_domain(entry)
+            if entry_domain != domain:
+                continue
 
-        weighted_total += weight
-        if entry.get("success"):
-            weighted_success += weight
+            weight = RISK_WEIGHTS.get(domain,1)
+            weighted_total += weight
 
-    if weighted_total == 0:
-        return 0.7
+            if entry.get("success"):
+                weighted_success += weight
 
-    return weighted_success / weighted_total
+        if weighted_total == 0:
+            scores[domain] = 0.7
+        else:
+            scores[domain] = weighted_success / weighted_total
 
-def dynamic_threshold():
-    score = compute_maturity()
+    return scores
+
+
+def dynamic_threshold(domain):
+    scores = compute_domain_maturity()
+    score = scores.get(domain,0.7)
 
     if score >= 0.9:
         return 0.75
