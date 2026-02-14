@@ -16,66 +16,49 @@ from telegram.ext import (
     filters,
 )
 
-from llm_engine import ask_llm
-from strategy_llm_engine import evaluate_strategy
+from metrics_engine import inc, metrics_status
+from alignment_handler import alignment_status_handler
+from long_term_handler import long_term_status_handler
 from cognitive_engine import cognitive_decision
 from plan_validator import validate_plan
 from plan_executor import execute_plan
-import json
-from datetime import datetime
 
-from metrics_engine import inc, metrics_status
-from alignment_engine import validate_alignment
-from selfmod_engine import is_self_mod_command, apply_self_mod
 
-# ==========================
-# CONFIG
-# ==========================
-
-DEV_DIR = Path("/srv/dev")
-REPO_DIR = Path("/srv/repo")
-WORKSPACES_DIR = Path("/srv/workspaces")
-ENV_FILE = DEV_DIR / ".env"
+BASE_DIR = Path("/srv/dev")
+ENV_FILE = BASE_DIR / ".env"
+REPO_DIR = BASE_DIR
+WORKSPACES_DIR = BASE_DIR / "workspace"
 
 AUTHORIZED_USER = 426824590
-
 EXECUTING = False
 PENDING_CMD = None
 
+
 # ==========================
-# ENV
+# UTIL
 # ==========================
 
 def load_token():
     for line in ENV_FILE.read_text().splitlines():
         if line.startswith("TELEGRAM_TOKEN="):
-            return line.split("=", 1)[1].strip()
+            return line.split("=",1)[1].strip()
     raise RuntimeError("TELEGRAM_TOKEN não encontrado")
 
-# ==========================
-# MODE ENGINE
-# ==========================
-
-def detect_mode(text):
-    decision, explanation = evaluate_strategy(text)
-    return decision, explanation
-
-# ==========================
-# WORKSPACE
-# ==========================
 
 def create_workspace():
     WORKSPACES_DIR.mkdir(exist_ok=True)
     ws = WORKSPACES_DIR / f"ws_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    subprocess.run(["git", "clone", str(REPO_DIR), str(ws)], stdout=subprocess.PIPE)
+    subprocess.run(["git","clone",str(REPO_DIR),str(ws)], stdout=subprocess.PIPE)
     return ws
+
 
 def execute(cmd, cwd):
     result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
     return result.returncode == 0, result.stdout + result.stderr
 
+
 # ==========================
-# COMMAND HANDLER
+# HANDLER PRINCIPAL
 # ==========================
 
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -87,20 +70,15 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
 
     # ==========================
-    # COGNITIVE DECISION ENGINE
+    # COGNITIVE DECISION
     # ==========================
+
     decision_data = cognitive_decision(text)
     decision = decision_data.get("decision")
 
-    if decision == "REJECT":
-        await update.message.reply_text(f"❌ REJEITADO: {decision_data.get('reason')}")
-        return
-
-    
-    # ==========================
-    # PLAN VALIDATION + EXECUTION
-    # ==========================
     if decision == "PLAN":
+        await update.message.reply_text("🧠 Plano estratégico gerado pela LLM.")
+
         plan_steps = decision_data.get("plan", [])
 
         valid, msg = validate_plan(plan_steps)
@@ -111,27 +89,7 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("🧪 Plano validado. Executando...")
 
         results = execute_plan(plan_steps)
-
         success = all(r["success"] for r in results)
-
-        # Registro estratégico
-        try:
-            log_file = Path("/srv/dev/strategy_log.json")
-            logs = []
-            if log_file.exists():
-                logs = json.loads(log_file.read_text())
-
-            logs.append({
-                "timestamp": str(datetime.now()),
-                "instruction": text,
-                "decision": decision,
-                "plan": plan_steps,
-                "success": success
-            })
-
-            log_file.write_text(json.dumps(logs, indent=2))
-        except:
-            pass
 
         if success:
             await update.message.reply_text("✅ Plano executado com sucesso.")
@@ -139,38 +97,13 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("⚠️ Execução interrompida por falha.")
 
         return
-([f"- {p}" for p in decision_data.get("plan", [])])
-        await update.message.reply_text("🧠 Plano estratégico gerado:")
-        await update.message.reply_text(plan_steps)
-        return
-
-
-    # ==========================
-    # ALIGNMENT CHECK
-    # ==========================
-    ok, align_msg = validate_alignment(text)
-    if not ok:
-        await update.message.reply_text(f"⚠️ Violação de alinhamento:\n{align_msg}")
-        return
-
-    # ==========================
-    # STRATEGY DECISION
-    # ==========================
-    decision, explanation = detect_mode(text)
-
-    if decision == "PLAN":
-        await update.message.reply_text("🧠 Gerando plano estratégico via LLM...")
-        plan = ask_llm(text)
-        await update.message.reply_text(plan)
-        return
 
     if decision == "REJECT":
-        await update.message.reply_text("❌ Instrução rejeitada estrategicamente.")
-        await update.message.reply_text(explanation)
+        await update.message.reply_text("❌ Instrução rejeitada pelo núcleo estratégico.")
         return
 
     # ==========================
-    # EXECUTION FLOW
+    # EXECUÇÃO NORMAL
     # ==========================
 
     if PENDING_CMD is None:
@@ -186,28 +119,6 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cmd = PENDING_CMD
     PENDING_CMD = None
 
-    if EXECUTING:
-        await update.message.reply_text("Execução já em andamento.")
-        return
-
-    EXECUTING = True
-
-    # ==========================
-    # SELF-MOD
-    # ==========================
-    if is_self_mod_command(cmd):
-        await update.message.reply_text("🛠 Detectado comando de self-modificação.")
-        ok, result = apply_self_mod(cmd)
-        if ok:
-            inc("selfmods")
-            await update.message.reply_text(result)
-        else:
-            inc("rollbacks")
-            await update.message.reply_text("❌ Self-mod falhou. Rollback executado.")
-            await update.message.reply_text(result)
-        EXECUTING = False
-        return
-
     await update.message.reply_text("Criando workspace...")
     ws = create_workspace()
 
@@ -219,56 +130,45 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         shutil.rmtree(ws, ignore_errors=True)
         inc("failures")
         await update.message.reply_text(f"Falha:\n{output}")
-        EXECUTING = False
         return
 
-    subprocess.run(["cp", "-r", f"{ws}/.", str(REPO_DIR)])
-    subprocess.run(["git", "add", "."], cwd=REPO_DIR)
+    subprocess.run(["cp","-r",f"{ws}/.",str(REPO_DIR)])
+    subprocess.run(["git","add","."],cwd=REPO_DIR)
 
-    status = subprocess.run(
-        ["git", "status", "--porcelain"],
-        cwd=REPO_DIR,
-        capture_output=True,
-        text=True,
-    )
+    status = subprocess.run(["git","status","--porcelain"],cwd=REPO_DIR,capture_output=True,text=True)
 
-    if status.stdout.strip() == "":
-        shutil.rmtree(ws, ignore_errors=True)
+    if status.stdout.strip()=="":
+        shutil.rmtree(ws,ignore_errors=True)
         await update.message.reply_text("Nenhuma alteração.")
-        EXECUTING = False
         return
 
-    commit_msg = f"auto(dev): {cmd}"
-    subprocess.run(["git", "commit", "-m", commit_msg], cwd=REPO_DIR)
+    commit_msg=f"auto(dev): {cmd}"
+    subprocess.run(["git","commit","-m",commit_msg],cwd=REPO_DIR)
     inc("commits")
 
-    commit_hash = subprocess.check_output(
-        ["git", "rev-parse", "--short", "HEAD"],
-        cwd=REPO_DIR,
-    ).decode().strip()
+    commit_hash=subprocess.check_output(["git","rev-parse","--short","HEAD"],cwd=REPO_DIR).decode().strip()
 
-    shutil.rmtree(ws, ignore_errors=True)
+    shutil.rmtree(ws,ignore_errors=True)
 
     await update.message.reply_text(f"Aplicado commit {commit_hash}")
-    EXECUTING = False
-
-# ==========================
-# MAIN
-# ==========================
 
 
 # ==========================
 # MAIN
 # ==========================
-
-from _main_patch import register_handlers
 
 def main():
     token = load_token()
     app = ApplicationBuilder().token(token).build()
-    register_handlers(app, handle)
-    print("DEV BOT ONLINE - CORE ESTÁVEL")
+
+    app.add_handler(CommandHandler("metrics", lambda u,c: u.message.reply_text(metrics_status())))
+    app.add_handler(CommandHandler("alignment", alignment_status_handler))
+    app.add_handler(CommandHandler("longterm", long_term_status_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
+
+    print("DEV BOT ONLINE - CLEAN COGNITIVE CORE")
     app.run_polling()
+
 
 if __name__ == "__main__":
     main()
