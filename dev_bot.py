@@ -1,3 +1,4 @@
+from briefing_engine import start_briefing, append_input, load_state, close_briefing
 #!/usr/bin/env python3
 
 import json
@@ -10,7 +11,6 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 
 from cognitive_engine import cognitive_decision
-from briefing_engine import start_briefing, append_user_input, generate_response, load_state
 from llm_engine import ask_llm
 
 REPO_DIR = Path("/srv/repo")
@@ -60,7 +60,6 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     from cognitive_engine import cognitive_decision
     from cognitive_validator import validate_decision
-    from briefing_engine import load_state, start_briefing, append_input, close_briefing
 
     decision = cognitive_decision(text)
     valid, msg = validate_decision(decision)
