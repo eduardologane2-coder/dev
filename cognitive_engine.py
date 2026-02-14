@@ -8,6 +8,8 @@ def cognitive_decision(text: str):
     from semantic_memory_engine import register_pattern
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
     intent = classify_intention(text)
 
     # EXECUÇÃO DIRETA
@@ -15,9 +17,13 @@ def cognitive_decision(text: str):
         register_pattern(text, "EXECUTE", 0.9)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         register_pattern(text, "PLAN_READY", 0.8)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         return {
             "state": "EXECUTE",
             "plan": {
@@ -56,9 +62,13 @@ Texto: {text}
         register_pattern(text, "EXECUTE", 0.9)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         register_pattern(text, "PLAN_READY", 0.8)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
             return {
                 "state": "BRIEFING",
                 "message": "Plano inválido. Necessário mais contexto.",
@@ -68,9 +78,13 @@ Texto: {text}
         register_pattern(text, "EXECUTE", 0.9)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         register_pattern(text, "PLAN_READY", 0.8)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         return {
             "state": "PLAN_READY",
             "plan": plan,
@@ -81,9 +95,13 @@ Texto: {text}
         register_pattern(text, "EXECUTE", 0.9)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         register_pattern(text, "PLAN_READY", 0.8)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         return {
             "state": "CONFIRM",
             "confidence": 0.7
@@ -92,9 +110,13 @@ Texto: {text}
         register_pattern(text, "EXECUTE", 0.9)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
         register_pattern(text, "PLAN_READY", 0.8)
     from metacognition_engine import recalculate_meta
     recalculate_meta()
+    from phase_engine import evaluate_phase
+    evaluate_phase()
     return {
         "state": "BRIEFING",
         "message": "Preciso entender melhor seu objetivo.",
