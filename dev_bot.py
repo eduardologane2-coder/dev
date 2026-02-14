@@ -1,3 +1,4 @@
+from llm_planner import generate_plan
 from mode_engine import detect_mode, persist_mode
 from llm_engine import llm_propose
 from long_term_handler import long_term_status_handler
@@ -88,7 +89,10 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
     mode = detect_mode(text)
 
     if mode == "modo_planejamento":
-        await update.message.reply_text("🧠 Entrando em modo PLANEJAMENTO automático.")
+        await update.message.reply_text("🧠 Gerando plano estratégico via LLM...")
+        plan = generate_plan(text)
+        await update.message.reply_text(plan)
+        return
     return
 
     if mode == "modo_analise":
