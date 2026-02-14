@@ -1,32 +1,33 @@
-from briefing_engine import start_briefing, append_input, load_state, close_briefing
 #!/usr/bin/env python3
 
-import json
 import subprocess
 import shutil
 from datetime import datetime
 from pathlib import Path
-
 from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
+from telegram.ext import (
+    ApplicationBuilder,
+    MessageHandler,
+    ContextTypes,
+    filters,
+)
 
 from cognitive_engine import cognitive_decision
-from llm_engine import ask_llm
+from human_renderer import render_human
+from confidence_gate import allow_execution
 
-REPO_DIR = Path("/srv/repo")
-WORKSPACES_DIR = Path("/srv/dev/workspaces")
-ENV_FILE = Path("/srv/dev/.env")
+REPO_DIR = Path("/srv/dev")
+WORKSPACES_DIR = REPO_DIR / "workspaces"
 
 AUTHORIZED_USER = 426824590
-PENDING_CMD = None
-
+EXECUTING = False
 
 def load_token():
-    for line in ENV_FILE.read_text().splitlines():
-        if line.startswith("TELEGRAM_TOKEN="):
-            return line.split("=",1)[1].strip()
-    raise RuntimeError("TELEGRAM_TOKEN não encontrado")
-
+    with open("/srv/dev/.env") as f:
+        for line in f:
+            if line.startswith("TELEGRAM_TOKEN="):
+                return line.split("=",1)[1].strip()
+    raise RuntimeError("Token não encontrado")
 
 def create_workspace():
     WORKSPACES_DIR.mkdir(exist_ok=True)
@@ -34,97 +35,54 @@ def create_workspace():
     subprocess.run(["git","clone",str(REPO_DIR),str(ws)],stdout=subprocess.PIPE)
     return ws
 
-
-def execute(cmd, cwd):
+def execute(cmd,cwd):
     result = subprocess.run(cmd,shell=True,cwd=cwd,capture_output=True,text=True)
     return result.returncode==0, result.stdout+result.stderr
 
-
-    token = load_token()
-    app = ApplicationBuilder().token(token).build()
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
-
-    print("DEV BOT ONLINE - CLEAN COGNITIVE CORE")
-    app.run_polling()
-
-
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    global PENDING_CMD
+    global EXECUTING
 
     if update.effective_user.id != AUTHORIZED_USER:
         return
 
     text = update.message.text.strip()
 
-    from cognitive_engine import cognitive_decision
-    from cognitive_validator import validate_decision
-
     decision = cognitive_decision(text)
-    valid, msg = validate_decision(decision)
 
-    if not valid:
-        await update.message.reply_text(f"Erro estrutural: {msg}")
+    # 1️⃣ Humanização
+    human_text = render_human(decision)
+    await update.message.reply_text(human_text)
+
+    # 2️⃣ Confidence gate
+    if not allow_execution(decision):
         return
 
-    state = decision["state"]
-    confidence = decision["confidence"]
-
-    briefing = load_state()
-
-    # -------- BRIEFING ITERATIVO --------
-    if briefing["active"]:
-        append_input(text)
-        await update.message.reply_text("Continuando briefing...")
+    # 3️⃣ Execução automática condicionada
+    if EXECUTING:
+        await update.message.reply_text("Execução já em andamento.")
         return
 
-    if state == "BRIEFING":
-        start_briefing(text)
-        await update.message.reply_text(decision.get("message"))
-        return
+    EXECUTING = True
 
-    # -------- PLANO --------
-    if state == "PLAN_READY":
-        if confidence < 0.7:
-            await update.message.reply_text("Plano gerado, mas com baixa confiança. Deseja revisar?")
-            await update.message.reply_text(decision.get("plan"))
-            return
+    ws = create_workspace()
+    success, output = execute(decision["plan"][0], ws)
 
-        await update.message.reply_text("Plano estruturado:")
-        await update.message.reply_text(decision.get("plan"))
-        return
+    shutil.rmtree(ws, ignore_errors=True)
 
-    # -------- EXECUÇÃO --------
-    if state == "EXECUTE":
-        PENDING_CMD = text
-        await update.message.reply_text(f"Executar comando técnico?\n{text}")
-        return
+    if success:
+        await update.message.reply_text("✅ Execução concluída.")
+    else:
+        await update.message.reply_text(f"❌ Falha:\n{output}")
 
-
-# ==========================
-# MAIN
-# ==========================
-
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
-
-    print("DEV BOT ONLINE - CLEAN COGNITIVE CORE")
-    app.run_polling()
-
-
-
-
-
-# ==========================
-# MAIN
-# ==========================
+    EXECUTING = False
 
 def main():
     token = load_token()
     app = ApplicationBuilder().token(token).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
-    print("DEV BOT ONLINE - CLEAN COGNITIVE CORE")
-    app.run_polling()
 
+    print("DEV BOT ONLINE - COGNITIVE CORE V2")
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
-
