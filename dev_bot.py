@@ -1,4 +1,5 @@
-from maturity_engine import dynamic_threshold, classify_domain
+from maturity_engine import register_execution, dynamic_threshold
+
 #!/usr/bin/env python3
 
 import subprocess
@@ -39,6 +40,25 @@ def create_workspace():
 def execute(cmd,cwd):
     result = subprocess.run(cmd,shell=True,cwd=cwd,capture_output=True,text=True)
     return result.returncode==0, result.stdout+result.stderr
+
+def classify_domain(text: str):
+
+    lower = text.lower()
+
+    if lower.startswith("git"):
+
+        return "git"
+
+    if lower.startswith(("rm","mv","chmod","chown")):
+
+        return "critical"
+
+    if lower.startswith(("mkdir","ls","touch","echo")):
+
+        return "shell"
+
+    return "strategic"
+
 
 async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != AUTHORIZED_USER:
