@@ -15,15 +15,11 @@ from telegram.ext import (
 )
 
 from cognitive_engine import cognitive_decision
-from context_lock_engine import (
-    load_state,
-    activate,
-    deactivate,
-    escalate_confidence,
-    interpret_abort_response,
-    can_auto_execute,
-    requires_hard_confirmation,
-)
+from context_lock_engine import load_state, activate, deactivate
+from cognitive_score_engine import increase, decrease, get_score
+from context_shift_engine import detect_shift
+from briefing_history_engine import append_entry
+from dominant_intent_engine import tracker
 
 ENV_FILE = Path("/srv/dev/.env")
 WORKSPACES_DIR = Path("/srv/dev/workspaces")
@@ -51,58 +47,26 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     text = update.message.text.strip()
-
-    state = load_state()
-
-    # ==========================
-    # CONTEXT LOCK
-    # ==========================
-    if state["active"]:
-
-        decision = cognitive_decision(text)
-
-        if decision.get("state") == "EXECUTE":
-
-            if not can_auto_execute():
-                interpretation = interpret_abort_response(text)
-
-                if interpretation == "CONTINUE_BRIEFING":
-                    await update.message.reply_text("Seguimos no briefing estratégico.")
-                    return
-
-                if interpretation == "CONVERT_TO_PLAN":
-                    await update.message.reply_text("Integrando como parte do plano.")
-                    escalate_confidence()
-                    return
-
-                if interpretation == "ABORT_AND_EXECUTE":
-                    if requires_hard_confirmation():
-                        await update.message.reply_text(
-                            "Estamos em estágio avançado do briefing. Confirme explicitamente que deseja abortar."
-                        )
-                        return
-                    deactivate()
-                    await update.message.reply_text("Abortando briefing. Executando comando.")
-                else:
-                    await update.message.reply_text(
-                        "Você deseja interromper o briefing estratégico para executar um comando técnico?"
-                    )
-                    return
-            else:
-                deactivate()
-                await update.message.reply_text("Confiança suficiente. Executando automaticamente.")
-
-    # ==========================
-    # COGNITIVE CORE
-    # ==========================
     decision = cognitive_decision(text)
-    state_name = decision.get("state")
+    state = decision.get("state")
 
-    if state_name == "PLAN_READY":
+    tracker.add(state)
+
+    lock = load_state()
+
+    if lock.get("active"):
+        shifted = detect_shift(lock.get("topic"), text)
+        if shifted:
+            await update.message.reply_text("Detectei mudança de contexto.")
+        else:
+            increase(1)
+
+    if state == "PLAN_READY":
         activate(text)
-        escalate_confidence()
-        plan = decision.get("plan")
+        increase(2)
+        append_entry(text, get_score())
 
+        plan = decision.get("plan")
         if isinstance(plan, dict):
             plan = json.dumps(plan, indent=2)
 
@@ -110,22 +74,21 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(plan)
         return
 
-    if state_name != "EXECUTE":
+    if state != "EXECUTE":
         await update.message.reply_text("Estado cognitivo inválido.")
         return
 
-    # ==========================
-    # EXECUÇÃO
-    # ==========================
     ws = create_workspace()
     success, output = execute(text, ws)
 
     if not success:
         shutil.rmtree(ws, ignore_errors=True)
+        decrease(1)
         await update.message.reply_text(f"Falha:\n{output}")
         return
 
     shutil.rmtree(ws, ignore_errors=True)
+    increase(1)
     await update.message.reply_text("Execução concluída.")
 
 def main():
@@ -133,7 +96,7 @@ def main():
     app = ApplicationBuilder().token(token).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
 
-    print("DEV BOT ONLINE - CONFIDENCE GATED CORE")
+    print("DEV BOT ONLINE - COGNITIVE CORE LEVEL 4")
     app.run_polling()
 
 if __name__ == "__main__":

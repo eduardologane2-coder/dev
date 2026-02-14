@@ -1,17 +1,28 @@
+import json
+
 def render_human(decision: dict) -> str:
     state = decision.get("state")
-    confidence = decision.get("confidence", 0)
 
     if state == "BRIEFING":
-        return decision.get("message")
+        return decision.get("message", "Preciso de mais contexto.")
 
     if state == "PLAN_READY":
-        return "🧠 Plano estruturado:\n\n" + decision.get("plan")
+        plan = decision.get("plan")
+
+        # Se vier como dict estruturado
+        if isinstance(plan, dict):
+            try:
+                return "🧠 Plano estruturado:\n\n" + json.dumps(plan, indent=2, ensure_ascii=False)
+            except:
+                return "🧠 Plano estruturado disponível."
+
+        # Se vier como string
+        if isinstance(plan, str):
+            return "🧠 Plano estruturado:\n\n" + plan
+
+        return "🧠 Plano estruturado disponível."
 
     if state == "EXECUTE":
-        return "⚙️ Comando técnico detectado."
+        return "⚙️ Preparando execução técnica."
 
-    if state == "REJECT":
-        return "🚫 Instrução rejeitada."
-
-    return "Estado cognitivo inválido."
+    return "Estado cognitivo não reconhecido."

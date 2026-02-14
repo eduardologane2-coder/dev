@@ -1,49 +1,26 @@
-import subprocess
-from pathlib import Path
+import json
 
-REPO_DIR = Path("/srv/repo")
+def parse_plan(raw_plan: str):
+    try:
+        data = json.loads(raw_plan)
+        return data, None
+    except Exception as e:
+        return None, f"JSON inválido: {e}"
 
-# ==========================
-# VALIDAÇÃO DE PLANO
-# ==========================
+def validate_plan_structure(plan: dict):
+    if not isinstance(plan, dict):
+        return False, "Plano não é dict"
 
-def validate_plan(plan_steps):
-    if not isinstance(plan_steps, list):
-        return False, "Plano não é lista."
+    if "steps" not in plan:
+        return False, "Campo 'steps' ausente"
 
-    for step in plan_steps:
+    if not isinstance(plan["steps"], list):
+        return False, "'steps' deve ser lista"
+
+    for step in plan["steps"]:
         if not isinstance(step, dict):
-            return False, "Step inválido."
-        if "command" not in step:
-            return False, "Step sem comando."
+            return False, "Step não é dict"
+        if "type" not in step or "content" not in step:
+            return False, "Step inválido"
 
-    return True, "OK"
-
-# ==========================
-# EXECUÇÃO DE PLANO
-# ==========================
-
-def execute_plan(plan_steps):
-    results = []
-
-    for step in plan_steps:
-        cmd = step.get("command")
-
-        result = subprocess.run(
-            cmd,
-            shell=True,
-            cwd=REPO_DIR,
-            capture_output=True,
-            text=True
-        )
-
-        results.append({
-            "command": cmd,
-            "success": result.returncode == 0,
-            "output": result.stdout + result.stderr
-        })
-
-        if result.returncode != 0:
-            break
-
-    return results
+    return True, None
