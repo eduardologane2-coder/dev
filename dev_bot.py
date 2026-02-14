@@ -94,36 +94,6 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 
-    # ==========================
-    # COGNITIVE DECISION
-    # ==========================
-
-    decision_data = cognitive_decision(text)
-    # decision já definido via unpack
-
-    if decision == "PLAN":
-        await update.message.reply_text("🧠 Plano estratégico gerado pela LLM.")
-
-        plan_steps = decision_data.get("plan", [])
-
-        valid, msg = validate_plan(plan_steps)
-        if not valid:
-            await update.message.reply_text(f"❌ Plano inválido: {msg}")
-            return
-
-        await update.message.reply_text("🧪 Plano validado. Executando...")
-
-        results = execute_plan(plan_steps)
-        success = all(r["success"] for r in results)
-
-        if success:
-            await update.message.reply_text("✅ Plano executado com sucesso.")
-        else:
-            await update.message.reply_text("⚠️ Execução interrompida por falha.")
-
-        return
-
-    if decision == "REJECT":
         await update.message.reply_text("❌ Instrução rejeitada pelo núcleo estratégico.")
         return
 
