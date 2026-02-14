@@ -1,13 +1,19 @@
-from telegram import Update
-from telegram.ext import ContextTypes
-from alignment_contract import alignment_status
+import json
+from pathlib import Path
+from alignment_engine import load_contract
 
-async def alignment_status_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    status = alignment_status()
+CONTRACT_FILE = Path("/srv/dev/alignment_contract.json")
+
+async def alignment_status(update, context):
+    data = load_contract()
+
+    joseph = len(data["joseph_objectives"])
+    dev = len(data["dev_objectives"])
+    rules = len(data["rules"])
 
     await update.message.reply_text(
         f"🔐 CONTRATO JOSEPH ↔ DEV\n\n"
-        f"Objetivos Joseph: {status['joseph_objectives']}\n"
-        f"Objetivos Dev: {status['dev_objectives']}\n"
-        f"Regras de alinhamento: {status['rules']}"
+        f"Objetivos Joseph: {joseph}\n"
+        f"Objetivos Dev: {dev}\n"
+        f"Regras de alinhamento: {rules}"
     )
