@@ -113,4 +113,3 @@ AUDIT nunca altera.
 VERSIONING nunca decide.
 
 Qualquer violação é falha estrutural.
-
