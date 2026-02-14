@@ -89,10 +89,10 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
     persist_mode(mode)
     if mode == "modo_planejamento":
         await update.message.reply_text("🧠 Entrando em modo PLANEJAMENTO automático.")
-        return
+                return
     if mode == "modo_analise":
         await update.message.reply_text("🔎 Entrando em modo ANÁLISE automática.")
-        return
+                return
 
 
     # Proposta
