@@ -100,3 +100,22 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
         PENDING_CMD = text
         await update.message.reply_text(f"Executar comando técnico?\n{text}")
         return
+
+
+# ==========================
+# MAIN
+# ==========================
+
+def main():
+    token = load_token()
+    app = ApplicationBuilder().token(token).build()
+
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
+
+    print("DEV BOT ONLINE - CLEAN COGNITIVE CORE")
+    app.run_polling()
+
+
+if __name__ == "__main__":
+    main()
+
