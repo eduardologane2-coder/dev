@@ -1,38 +1,21 @@
 import os
-import requests
+from openai import OpenAI
 
-def load_llm_key():
-    with open("/srv/dev/.env") as f:
-        for line in f:
-            if line.startswith("LLM_API_KEY="):
-                return line.split("=",1)[1].strip().replace('"','')
-    return None
+def ask_llm(prompt: str) -> str:
+    api_key = os.getenv("OPENAI_API_KEY")
 
-LLM_API_KEY = load_llm_key()
+    if not api_key:
+        return "LLM não configurada. Defina OPENAI_API_KEY no .env"
 
-def call_llm(prompt):
-    if not LLM_API_KEY:
-        return "LLM_API_KEY não configurada."
+    client = OpenAI(api_key=api_key)
 
-    # Exemplo usando OpenAI API compatível
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {LLM_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": "Você é o motor cognitivo estratégico do Dev."},
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0.4
-        }
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Você é o núcleo cognitivo estratégico do Dev."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.2
     )
 
-    if response.status_code != 200:
-        return f"Erro LLM: {response.text}"
-
-    data = response.json()
-    return data["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
