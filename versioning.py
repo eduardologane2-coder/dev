@@ -1,5 +1,5 @@
 from datetime import datetime
-from executor import run
+from safe_executor import run_safe as run
 
 def commit_all(message: str):
     run("git add .")

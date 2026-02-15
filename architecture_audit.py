@@ -1,4 +1,4 @@
-from executor import run
+from safe_executor import run_safe as run
 from pathlib import Path
 
 DEV_PATH = Path("/srv/dev")

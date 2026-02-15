@@ -18,7 +18,7 @@ from cognitive_engine import cognitive_decision
 from human_renderer import render_human
 from confidence_engine import can_auto_execute
 from cognitive_log_engine import log_decision
-from executor import run
+from safe_executor import run_safe as run
 
 REPO_DIR = Path("/srv/repo")
 WORKSPACES_DIR = Path("/srv/workspaces")
