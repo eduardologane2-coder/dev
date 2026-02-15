@@ -4,9 +4,7 @@ from introspection.self_inspection_engine import SelfInspectionEngine
 RULES = {
 
     "INPUT_LAYER": {
-        "allowed": [
-            "ORCHESTRATION_LAYER"
-        ]
+        "allowed": ["ORCHESTRATION_LAYER"]
     },
 
     "ORCHESTRATION_LAYER": {
@@ -42,7 +40,8 @@ RULES = {
         "allowed": [
             "COGNITIVE_CORE",
             "STRATEGY_LAYER",
-            "GOVERNANCE_LAYER"
+            "GOVERNANCE_LAYER",
+            "EXECUTION_LAYER"
         ]
     },
 
@@ -64,7 +63,8 @@ RULES = {
         "allowed": [
             "AUDIT_LAYER",
             "VERSIONING_LAYER",
-            "COGNITIVE_CORE"
+            "COGNITIVE_CORE",
+            "EXECUTION_LAYER"
         ]
     },
 
