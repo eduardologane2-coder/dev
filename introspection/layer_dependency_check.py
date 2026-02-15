@@ -2,12 +2,92 @@ import json
 from introspection.self_inspection_engine import SelfInspectionEngine
 
 RULES = {
-    "CORE_ENGINE": {"allowed": ["CORE_ENGINE", "STRATEGY_LAYER"]},
-    "GOVERNANCE_LAYER": {"allowed": ["GOVERNANCE_LAYER", "CORE_ENGINE", "STRATEGY_LAYER"]},
-    "EXECUTION_LAYER": {"allowed": ["EXECUTION_LAYER", "GOVERNANCE_LAYER", "CORE_ENGINE", "STRATEGY_LAYER"]},
-    "STRATEGY_LAYER": {"allowed": ["STRATEGY_LAYER", "CORE_ENGINE"]},
-    "TEST_LAYER": {"allowed": ["CORE_ENGINE", "GOVERNANCE_LAYER", "EXECUTION_LAYER", "STRATEGY_LAYER", "TEST_LAYER"]},
-    "UNKNOWN_LAYER": {"allowed": ["CORE_ENGINE", "GOVERNANCE_LAYER", "EXECUTION_LAYER", "STRATEGY_LAYER", "TEST_LAYER", "UNKNOWN_LAYER"]}
+
+    "INPUT_LAYER": {
+        "allowed": [
+            "ORCHESTRATION_LAYER"
+        ]
+    },
+
+    "ORCHESTRATION_LAYER": {
+        "allowed": [
+            "INPUT_LAYER",
+            "INTENTION_LAYER",
+            "COGNITIVE_CORE",
+            "STRATEGY_LAYER",
+            "GOVERNANCE_LAYER",
+            "EXECUTION_LAYER",
+            "VERSIONING_LAYER",
+            "AUDIT_LAYER",
+            "LOGGING_LAYER",
+            "ORCHESTRATION_LAYER"
+        ]
+    },
+
+    "COGNITIVE_CORE": {
+        "allowed": [
+            "COGNITIVE_CORE",
+            "STRATEGY_LAYER"
+        ]
+    },
+
+    "STRATEGY_LAYER": {
+        "allowed": [
+            "COGNITIVE_CORE",
+            "STRATEGY_LAYER"
+        ]
+    },
+
+    "GOVERNANCE_LAYER": {
+        "allowed": [
+            "COGNITIVE_CORE",
+            "STRATEGY_LAYER",
+            "GOVERNANCE_LAYER"
+        ]
+    },
+
+    "EXECUTION_LAYER": {
+        "allowed": [
+            "EXECUTION_LAYER"
+        ]
+    },
+
+    "VERSIONING_LAYER": {
+        "allowed": [
+            "VERSIONING_LAYER",
+            "EXECUTION_LAYER",
+            "COGNITIVE_CORE"
+        ]
+    },
+
+    "AUDIT_LAYER": {
+        "allowed": [
+            "AUDIT_LAYER",
+            "VERSIONING_LAYER",
+            "COGNITIVE_CORE"
+        ]
+    },
+
+    "LOGGING_LAYER": {
+        "allowed": [
+            "LOGGING_LAYER",
+            "COGNITIVE_CORE"
+        ]
+    },
+
+    "TEST_LAYER": {
+        "allowed": [
+            "TEST_LAYER",
+            "COGNITIVE_CORE",
+            "STRATEGY_LAYER",
+            "GOVERNANCE_LAYER",
+            "EXECUTION_LAYER",
+            "VERSIONING_LAYER",
+            "AUDIT_LAYER",
+            "LOGGING_LAYER",
+            "ORCHESTRATION_LAYER"
+        ]
+    }
 }
 
 def check_dependencies():
@@ -39,13 +119,11 @@ def check_dependencies():
                     "import_layer": imported_layer
                 })
 
-    return violations
-
-if __name__ == "__main__":
-    violations = check_dependencies()
-
-    if not violations:
-        print("\nNenhuma violação de camada detectada.\n")
-    else:
+    if violations:
         print("\nVIOLAÇÕES DETECTADAS:\n")
         print(json.dumps(violations, indent=2))
+    else:
+        print("\nNenhuma violação arquitetural detectada.\n")
+
+if __name__ == "__main__":
+    check_dependencies()
